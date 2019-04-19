@@ -1,7 +1,7 @@
 ﻿using System;
 using utils;
 using sorting;
-namespace dotnet_pract
+namespace dotnet_dsa
 {
     class Program
     {
