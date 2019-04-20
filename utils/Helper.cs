@@ -2,15 +2,15 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace utils {
+namespace Utils {
   public static class Helper {
-    private static Random rand = new Random();
     public static void Swap<T> (ref T lhs, ref T rhs) {
       T temp = lhs;
       lhs = rhs;
       rhs = temp;
     }
     public static void FillRandom(int[] arr, int max) {
+      var rand = new Random();
       for(var i =0; i < arr.Length; i++) {
         arr[i] = rand.Next(max + 1);
       }

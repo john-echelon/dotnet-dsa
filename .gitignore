@@ -42,3 +42,6 @@ msbuild.wrn
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Benchmark Artifacts
+BenchmarkDotNet.Artifacts/
