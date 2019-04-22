@@ -3,19 +3,7 @@ using System.Collections.Generic;
 using Utils;
 namespace Sorting {
   public static class Sort {
-    public static void Bubble<T>(T[] arr) where T: IComparable {
-      var n = arr.Length;
-      for(var i = 0; i < n -1; i++) {
-        for (var j = n - 1; j > i; --j)
-        {
-          if (arr[j].CompareTo(arr[j - 1]) < 0)
-          {
-            Helper.Swap(ref arr[j], ref arr[j - 1]);
-          }
-        }
-      }
-    }
-    public static void Bubble2<T>(T[] arr) where T: IComparable {
+    public static void Bubble<T>(T[] arr) where T: IComparable<T> {
       var n = arr.Length;
       bool swapped = false;
       for(var i = 0; i < n -1; i++) {
@@ -32,7 +20,7 @@ namespace Sorting {
         }
       }
     }
-    public static void Selection<T>(T[] arr) where T: IComparable {
+    public static void Selection<T>(T[] arr) where T: IComparable<T> {
       var n = arr.Length;
       for (var i = 0; i< n-1; i++) {
         int min = i;
@@ -47,7 +35,7 @@ namespace Sorting {
         }
       }
     }
-    public static void Insertion<T>(T[] arr) where T: IComparable {
+    public static void Insertion<T>(T[] arr) where T: IComparable<T> {
       var n = arr.Length;
       for (var i = 1; i < n; i++) {
         int j; T temp = arr[i];
@@ -57,7 +45,7 @@ namespace Sorting {
         arr[j] = temp;
       }
     }
-    public static void Quick<T>(T[] arr, int first, int last) where T: IComparable {
+    public static void Quick<T>(T[] arr, int first, int last) where T: IComparable<T>{
       int mid = (first + last) / 2;
       int lower = first + 1, upper = last;
       Helper.Swap(ref arr[first], ref arr[mid]);
@@ -79,12 +67,12 @@ namespace Sorting {
         Quick(arr, upper + 1, last);
       }
     }
-    public static void Quick<T>(T[] arr) where T: IComparable {
+    public static void Quick<T>(T[] arr) where T: IComparable<T> {
       if (arr.Length < 2) 
         return;
       Quick(arr, 0, arr.Length - 1);
     }
-    public static void Merge<T>(T[] arr, int first, int last) where T: IComparable {
+    public static void Merge<T>(T[] arr, int first, int last) where T: IComparable<T> {
       if (last - first < 2)
         return; 
       int mid = (first + last) / 2;
@@ -92,7 +80,7 @@ namespace Sorting {
       Merge(arr, mid, last);
       MergeArray(arr, first, last);
     }
-    public static void MergeArray<T>(T[] arr, int first, int last) where T: IComparable {
+    public static void MergeArray<T>(T[] arr, int first, int last) where T: IComparable<T> {
       int mid = (first + last) / 2;
       int i1 = first, i2 = mid, i3 = 0;
       T[] temp = new T[last - first];
@@ -111,7 +99,7 @@ namespace Sorting {
       }
       Array.Copy(temp, 0, arr, first, temp.Length);
     }
-    public static void Merge<T>(T[] arr) where T: IComparable {
+    public static void Merge<T>(T[] arr) where T: IComparable<T> {
       Merge(arr, 0, arr.Length);
     }
   }

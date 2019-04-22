@@ -13,7 +13,7 @@ namespace dotnet_dsa
       #if RELEASE
       RunBenchmarks();
       #else
-      RunSort(Sort.Bubble2);
+      RunSort(Sort.Bubble);
       RunSort(Sort.Selection);
       RunSort(Sort.Insertion);
       RunSort(Sort.Quick);

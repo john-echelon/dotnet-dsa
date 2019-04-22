@@ -26,12 +26,6 @@ namespace Benchmark
       return arr;
     }
     [Benchmark]
-    public int[] BubbleSort2()
-    {
-      Sorting.Sort.Bubble2(arr);
-      return arr;
-    }
-    [Benchmark]
     public int[] SelectionSort()
     {
       Sorting.Sort.Selection(arr);
@@ -47,6 +41,12 @@ namespace Benchmark
     public int[] QuickSort()
     {
       Sorting.Sort.Quick(arr);
+      return arr;
+    }
+    [Benchmark]
+    public int[] MergeSort()
+    {
+      Sorting.Sort.Merge(arr);
       return arr;
     }
   }
