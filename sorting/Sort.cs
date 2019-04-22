@@ -15,7 +15,52 @@ namespace Sorting {
         }
       }
     }
+    public static void Bubble2<T>(T[] arr) where T: IComparable {
+      var n = arr.Length;
+      bool swapped = false;
+      for(var i = 0; i < n -1; i++) {
+        for (var j = n - 1; j > i; --j)
+        {
+          if (arr[j].CompareTo(arr[j - 1]) < 0)
+          {
+            Helper.Swap(ref arr[j], ref arr[j - 1]);
+            swapped = true;
+          }
+        }
+        if (!swapped) {
+          break;
+        }
+      }
+    }
     public static void Selection<T>(T[] arr) where T: IComparable {
+      var n = arr.Length;
+      for (var i = 0; i< n-1; i++) {
+        int min = i;
+        int j;
+        for (j = i + 1; j < n; j++) {
+          if (arr[min].CompareTo(arr[j]) > 0) {
+            min = j;
+          }
+        }
+        Helper.Swap(ref arr[i], ref arr[min]);
+      }
+    }
+    public static void Selection2<T>(T[] arr) where T: IComparable {
+      var n = arr.Length;
+      for (var i = 0; i< n-1; i++) {
+        int min = i;
+        int j;
+        for (j = i + 1; j < n; j++) {
+          if (arr[min].CompareTo(arr[j]) > 0) {
+            min = j;
+          }
+        }
+        if (min != i) {
+          Helper.Swap(ref arr[i], ref arr[min]);
+        }
+      }
+    }
+    public static void Selection3<T>(T[] arr) where T: IComparable {
       var n = arr.Length;
       for (var i = 0; i< n-1; i++) {
         int min = i;
@@ -39,6 +84,33 @@ namespace Sorting {
         }
         arr[j] = temp;
       }
+    }
+    public static void Quick<T>(T[] arr, int first, int last) where T: IComparable {
+      int mid = (first + last) / 2;
+      int lower = first + 1, upper = last;
+      Helper.Swap(ref arr[first], ref arr[mid]);
+      while (lower <= upper) {
+        while (arr[lower].CompareTo(arr[first]) < 0 && lower < last)
+          lower++;
+        while (arr[upper].CompareTo(arr[first]) > 0)
+          upper--;
+        if (lower < upper) {
+          Helper.Swap(ref arr[lower++], ref arr[upper--]);
+        }
+        else lower++;
+      }
+      Helper.Swap(ref arr[first], ref arr[upper]);
+      if (first < upper - 1) {
+        Quick(arr, first, upper - 1);
+      }
+      if (upper + 1 < last) {
+        Quick(arr, upper + 1, last);
+      }
+    }
+    public static void Quick<T>(T[] arr) where T: IComparable {
+      if (arr.Length < 2) 
+        return;
+      Quick(arr, 0, arr.Length - 1);
     }
   }
 }
