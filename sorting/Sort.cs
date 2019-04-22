@@ -42,34 +42,6 @@ namespace Sorting {
             min = j;
           }
         }
-        Helper.Swap(ref arr[i], ref arr[min]);
-      }
-    }
-    public static void Selection2<T>(T[] arr) where T: IComparable {
-      var n = arr.Length;
-      for (var i = 0; i< n-1; i++) {
-        int min = i;
-        int j;
-        for (j = i + 1; j < n; j++) {
-          if (arr[min].CompareTo(arr[j]) > 0) {
-            min = j;
-          }
-        }
-        if (min != i) {
-          Helper.Swap(ref arr[i], ref arr[min]);
-        }
-      }
-    }
-    public static void Selection3<T>(T[] arr) where T: IComparable {
-      var n = arr.Length;
-      for (var i = 0; i< n-1; i++) {
-        int min = i;
-        int j;
-        for (j = i + 1; j < n; j++) {
-          if (arr[min].CompareTo(arr[j]) > 0) {
-            min = j;
-          }
-        }
         if (min != i) {
           Helper.Swap(ref arr[i], ref arr[min]);
         }
@@ -111,6 +83,36 @@ namespace Sorting {
       if (arr.Length < 2) 
         return;
       Quick(arr, 0, arr.Length - 1);
+    }
+    public static void Merge<T>(T[] arr, int first, int last) where T: IComparable {
+      if (last - first < 2)
+        return; 
+      int mid = (first + last) / 2;
+      Merge(arr, first, mid);
+      Merge(arr, mid, last);
+      MergeArray(arr, first, last);
+    }
+    public static void MergeArray<T>(T[] arr, int first, int last) where T: IComparable {
+      int mid = (first + last) / 2;
+      int i1 = first, i2 = mid, i3 = 0;
+      T[] temp = new T[last - first];
+      while (i1 < mid && i2 < last) {
+        if (arr[i1].CompareTo(arr[i2]) < 0) {
+          temp[i3++] = arr[i1++];
+        } else {
+          temp[i3++] = arr[i2++];
+        }
+      }
+      while(i1 < mid) {
+          temp[i3++] = arr[i1++];
+      }
+      while(i2 < last) {
+          temp[i3++] = arr[i2++];
+      }
+      Array.Copy(temp, 0, arr, first, temp.Length);
+    }
+    public static void Merge<T>(T[] arr) where T: IComparable {
+      Merge(arr, 0, arr.Length);
     }
   }
 }
