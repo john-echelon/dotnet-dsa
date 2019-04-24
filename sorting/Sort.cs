@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using Utils;
 namespace Sorting {
@@ -83,7 +84,10 @@ namespace Sorting {
     public static void MergeArray<T>(T[] arr, int first, int last) where T: IComparable<T> {
       int mid = (first + last) / 2;
       int i1 = first, i2 = mid, i3 = 0;
-      T[] temp = new T[last - first];
+
+      var pool = ArrayPool<T>.Shared;
+      var tempSize = last - first;
+      var temp = pool.Rent(tempSize);
       while (i1 < mid && i2 < last) {
         if (arr[i1].CompareTo(arr[i2]) < 0) {
           temp[i3++] = arr[i1++];
@@ -97,7 +101,8 @@ namespace Sorting {
       while(i2 < last) {
           temp[i3++] = arr[i2++];
       }
-      Array.Copy(temp, 0, arr, first, temp.Length);
+      Array.Copy(temp, 0, arr, first, tempSize);
+      pool.Return(temp);
     }
     public static void Merge<T>(T[] arr) where T: IComparable<T> {
       Merge(arr, 0, arr.Length);

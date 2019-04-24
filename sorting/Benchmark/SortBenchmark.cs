@@ -1,16 +1,19 @@
 using System;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using Utils;
 namespace Benchmark
 {
   [MemoryDiagnoser]
-  [CoreJob]
+  [Config(typeof(Config))]
   [RPlotExporter, RankColumn]
   public class SortBenchmark
   {
     private int[] arr;
-    [Params(100, 1000, 10000, 100000)]
+    [Params(100, 1000)]
+    // [Params(1000000)]
     public int N;
     [GlobalSetup]
     public void Setup()
@@ -50,4 +53,12 @@ namespace Benchmark
       return arr;
     }
   }
+  public class Config : ManualConfig
+{
+    public Config()
+    {
+      Add(Job.Core.WithGcForce(false));
+      // Add(Job.Core.WithGcForce(true));
+    }
+}
 }
