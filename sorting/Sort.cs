@@ -120,7 +120,6 @@ namespace Sorting {
       int n = arr.Length;
       int currentSize = n;
       BuildHeap(arr);
-      var output = Helper.Display(arr);
       for (var i = 0; i < n - 1; i++) {
         Helper.Swap(ref arr[0], ref arr[currentSize - 1]);
         SiftDown(arr, 0, --currentSize);
