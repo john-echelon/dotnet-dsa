@@ -52,6 +52,12 @@ namespace Benchmark
       Sorting.Sort.Merge(arr);
       return arr;
     }
+    [Benchmark]
+    public int[] HeapSort()
+    {
+      Sorting.Sort.Heap(arr);
+      return arr;
+    }
   }
   public class Config : ManualConfig
 {

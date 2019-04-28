@@ -107,5 +107,52 @@ namespace Sorting {
     public static void Merge<T>(T[] arr) where T: IComparable<T> {
       Merge(arr, 0, arr.Length);
     }
+
+    public static void BuildHeap<T>(T[] arr) where T: IComparable<T> {
+      var n = arr.Length;
+      var maxSize = n;
+      var currentSize = n;
+      for (var i = n / 2; i >= 0; --i) {
+        SiftDown(arr, i, currentSize);
+      }
+    }
+    public static void Heap<T>(T[] arr) where T: IComparable<T> {
+      int n = arr.Length;
+      int currentSize = n;
+      BuildHeap(arr);
+      var output = Helper.Display(arr);
+      for (var i = 0; i < n - 1; i++) {
+        Helper.Swap(ref arr[0], ref arr[currentSize - 1]);
+        SiftDown(arr, 0, --currentSize);
+      }
+    }
+    private static int LeftChild(int i) {
+      int leftIndex = 2*i+1;
+      return leftIndex;
+    }
+    private static int RightChild(int i) {
+      int rightIndex = 2*i+2;
+      return rightIndex;
+    }
+    private static int Parent(int i) {
+      return (i-1)/2;
+    }
+
+    private static void SiftDown<T>(T[] arr, int i, int currentSize) where T: IComparable<T> {
+      int left = LeftChild(i), right = RightChild(i);
+      int max = i;
+      do {
+        i = max;
+        if (left < currentSize && arr[max].CompareTo(arr[left]) < 0)
+          max = left;
+        if (right < currentSize && arr[max].CompareTo(arr[right]) < 0)
+          max = right;
+        if (max != i) {
+          Helper.Swap(ref arr[max], ref arr[i]);
+          left = LeftChild(max);
+          right = RightChild(max);
+        }
+      } while(max != i);
+    }
   }
 }
