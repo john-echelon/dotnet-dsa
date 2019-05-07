@@ -3,6 +3,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
+using Algorithms;
 using Utils;
 namespace Benchmark
 {
@@ -12,8 +13,8 @@ namespace Benchmark
   public class SortBenchmark
   {
     private int[] arr;
-    [Params(100, 1000)]
-    // [Params(1000000)]
+    [Params(100)]
+    // [Params(100000, 1000000, 10000000)]
     public int N;
     [GlobalSetup]
     public void Setup()
@@ -25,46 +26,45 @@ namespace Benchmark
     [Benchmark]
     public int[] BubbleSort()
     {
-      Sorting.Sort.Bubble(arr);
+      Sort.Bubble(arr);
       return arr;
     }
     [Benchmark]
     public int[] SelectionSort()
     {
-      Sorting.Sort.Selection(arr);
+      Sort.Selection(arr);
       return arr;
     }
     [Benchmark]
     public int[] InsertionSort()
     {
-      Sorting.Sort.Insertion(arr);
+      Sort.Insertion(arr);
       return arr;
     }
     [Benchmark]
     public int[] QuickSort()
     {
-      Sorting.Sort.Quick(arr);
+      Sort.Quick(arr);
       return arr;
     }
     [Benchmark]
     public int[] MergeSort()
     {
-      Sorting.Sort.Merge(arr);
+      Sort.Merge(arr);
       return arr;
     }
     [Benchmark]
     public int[] HeapSort()
     {
-      Sorting.Sort.Heap(arr);
+      Sort.Heap(arr);
       return arr;
     }
   }
   public class Config : ManualConfig
-{
+  {
     public Config()
     {
       Add(Job.Core.WithGcForce(false));
-      // Add(Job.Core.WithGcForce(true));
     }
-}
+  }
 }
