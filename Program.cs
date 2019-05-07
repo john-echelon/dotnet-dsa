@@ -1,8 +1,11 @@
 ﻿using System;
 using Utils;
 using Algorithms;
+using DataStructures;
 using Benchmark;
 using BenchmarkDotNet.Running;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace dotnet_dsa
 {
@@ -19,8 +22,26 @@ namespace dotnet_dsa
       RunSort(Sort.Insertion);
       RunSort(Sort.Quick);
       RunSort(Sort.Merge);
-      RunNumeric();
+      // RunNumeric();
+      RunHashTable();
       #endif
+    }
+    static void RunHashTable() {
+      const int capacity = 10, n = 50;
+      var ht = new HashTable<Guid, int>(capacity);
+      var keys = new List<Guid>();
+      for (var i =0; i < n; i++) {
+        var guid = Guid.NewGuid();
+        keys.Add(guid);
+        ht[guid] = i*2;
+      }
+      var chainSizes = ht.arr.Select(ele => ele?.Count ?? 0).ToArray();
+      Console.WriteLine("HashTable Distribution for cap: {0} n: {1} ", capacity, n);
+      var output = Helper.Display(chainSizes);
+      Console.WriteLine("{0}", output);
+      var values = keys.Select(ele => ht[ele]).ToArray(); 
+      var output2 = Helper.Display(values);
+      Console.WriteLine("{0}", output2);
     }
     static void RunNumeric() {
       var hashCount = 20;
