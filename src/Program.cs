@@ -1,14 +1,23 @@
 ﻿using System;
-using Utils;
-using Algorithms;
-using DataStructures;
-using Benchmark;
+using DotNetDsa.Utils;
+using DotNetDsa.Algorithms;
+using DotNetDsa.DataStructures;
+using DotNetDsa.Benchmark;
 using BenchmarkDotNet.Running;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace dotnet_dsa
+namespace DotNetDsa
 {
+  public class StubHashTable<TKey, TValue>: HashTable<TKey,TValue> where TKey: IComparable<TKey> {
+    public List<KeyValuePair<TKey, TValue>>[] Store {
+      get {
+        return arr;
+      }
+    }
+    public StubHashTable(int capacity = 10, float loadFactor = 1.0f): base(capacity, loadFactor){
+    }
+  }
   class Program
   {
      static void Main(string[] args)
@@ -28,14 +37,14 @@ namespace dotnet_dsa
     }
     static void RunHashTable() {
       const int capacity = 10, n = 50;
-      var ht = new HashTable<Guid, int>(capacity);
+      var ht = new StubHashTable<Guid, int>(capacity, 10);
       var keys = new List<Guid>();
       for (var i =0; i < n; i++) {
         var guid = Guid.NewGuid();
         keys.Add(guid);
         ht[guid] = i*2;
       }
-      var chainSizes = ht.arr.Select(ele => ele?.Count ?? 0).ToArray();
+      var chainSizes = ht.Store.Select(ele => ele?.Count ?? 0).ToArray();
       Console.WriteLine("HashTable Distribution for cap: {0} n: {1} ", capacity, n);
       var output = Helper.Display(chainSizes);
       Console.WriteLine("{0}", output);

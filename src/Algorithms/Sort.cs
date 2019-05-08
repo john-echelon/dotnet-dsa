@@ -1,8 +1,8 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using Utils;
-namespace Algorithms {
+using DotNetDsa.Utils;
+namespace DotNetDsa.Algorithms {
   public static class Sort {
     public static void Bubble<T>(T[] arr) where T: IComparable<T> {
       var n = arr.Length;

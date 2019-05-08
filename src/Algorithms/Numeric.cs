@@ -2,8 +2,8 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using Utils;
-namespace Algorithms {
+using DotNetDsa.Utils;
+namespace DotNetDsa.Algorithms {
   public static class Numeric {
     public static int[] GetPrimes (int n) {
       bool[] prime = new bool[n+1];

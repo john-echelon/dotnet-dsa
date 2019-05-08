@@ -2,8 +2,8 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
-using Utils;
-namespace Algorithms {
+using DotNetDsa.Utils;
+namespace DotNetDsa.Algorithms {
   public class Hashing {
     public static Func<uint, uint> UniversalHashingFamily(uint a, uint b, uint p) {
       return x => (a * x + b) % p;

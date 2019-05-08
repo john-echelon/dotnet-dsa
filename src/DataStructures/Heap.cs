@@ -2,8 +2,8 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using Utils;
-namespace DataStructures {
+using DotNetDsa.Utils;
+namespace DotNetDsa.DataStructures {
   public class Heap<T> where T: IComparable<T>{
     private int maxSize, currentSize;
     T[] arr;

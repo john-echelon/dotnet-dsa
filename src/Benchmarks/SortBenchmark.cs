@@ -3,9 +3,9 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
-using Algorithms;
-using Utils;
-namespace Benchmark
+using DotNetDsa.Algorithms;
+using DotNetDsa.Utils;
+namespace DotNetDsa.Benchmark
 {
   [MemoryDiagnoser]
   [Config(typeof(Config))]

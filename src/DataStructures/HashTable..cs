@@ -2,30 +2,30 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using Utils;
-using Algorithms;
-namespace DataStructures {
+using DotNetDsa.Utils;
+using DotNetDsa.Algorithms;
+namespace DotNetDsa.DataStructures {
 
   // TODO: Look into unit test projects, show out distribution. See also poisson distribution
   // TODO: Implement Rehash based on loadFactor
   public class HashTable<TKey,TValue> where TKey: IComparable<TKey>{
     private int bucketSize;
     private float loadFactor;
-    public List<KeyValuePair<TKey, TValue>>[] arr;
-    public List<TKey> keys;
+    protected List<KeyValuePair<TKey, TValue>>[] arr;
+    public List<TKey> Keys;
     Func<uint, uint> hashFunction;
     public HashTable(int capacity = 10, float loadFactor = 1.0f) {
       bucketSize = capacity;
       this.loadFactor = loadFactor;
       arr = new List<KeyValuePair<TKey, TValue>>[bucketSize];
-      keys = new List<TKey>();
+      Keys = new List<TKey>();
       hashFunction = Hashing.UniversalHashingFamily();
     }
     protected void Rehash() {
-      var currentLoadFactor = keys.Count / bucketSize;
+      var currentLoadFactor = Keys.Count / bucketSize;
       if (currentLoadFactor > loadFactor) {
         var nextHashTable = new HashTable<TKey, TValue>(bucketSize * 2, loadFactor);
-        keys.ForEach(k => nextHashTable[k] = this[k]);
+        Keys.ForEach(k => nextHashTable[k] = this[k]);
         this.arr = nextHashTable.arr;
         this.bucketSize = nextHashTable.bucketSize;
       }
@@ -67,7 +67,8 @@ namespace DataStructures {
         if (chain == null) {
           var chainToAdd = new List<KeyValuePair<TKey, TValue>>(){ entry };
           arr[hash] = chainToAdd;
-          keys.Add(key);
+          Keys.Add(key);
+          Rehash();
           return;
         }
         for (var i = 0; i < chain.Count; i++) {
@@ -77,7 +78,8 @@ namespace DataStructures {
           }
         }
         chain.Add(entry);
-        keys.Add(key);
+        Keys.Add(key);
+        Rehash();
       }
     }
   }

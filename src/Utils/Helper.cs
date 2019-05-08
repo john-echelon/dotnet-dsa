@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace Utils {
+namespace DotNetDsa.Utils {
   public static class Helper {
     public static void Swap<T> (ref T lhs, ref T rhs) {
       T temp = lhs;
