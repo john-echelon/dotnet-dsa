@@ -10,23 +10,28 @@ namespace DotNetDsa.DataStructures {
   public class HashTable<TKey,TValue> where TKey: IComparable<TKey>{
     private int bucketSize;
     private float loadFactor;
+    protected uint primeSeed = 1073741789;
     protected List<KeyValuePair<TKey, TValue>>[] arr;
     public List<TKey> Keys;
-    Func<uint, uint> hashFunction;
+    protected Func<uint, uint> hashFunction;
     public HashTable(int capacity = 10, float loadFactor = 1.0f) {
       bucketSize = capacity;
       this.loadFactor = loadFactor;
       arr = new List<KeyValuePair<TKey, TValue>>[bucketSize];
       Keys = new List<TKey>();
-      hashFunction = Hashing.UniversalHashingFamily();
+      Random rand = new Random();
+      var a = rand.Next() % primeSeed + 1;
+      var b = rand.Next() % primeSeed;
+      hashFunction = Hashing.UniversalHashingFamily((uint) a, (uint) b, primeSeed);
     }
     protected void Rehash() {
-      var currentLoadFactor = Keys.Count / bucketSize;
+      float currentLoadFactor = Keys.Count / (float) bucketSize;
       if (currentLoadFactor > loadFactor) {
         var nextHashTable = new HashTable<TKey, TValue>(bucketSize * 2, loadFactor);
         Keys.ForEach(k => nextHashTable[k] = this[k]);
         this.arr = nextHashTable.arr;
         this.bucketSize = nextHashTable.bucketSize;
+        this.hashFunction = nextHashTable.hashFunction;
       }
     }
     public int GetHash(TKey key) {
