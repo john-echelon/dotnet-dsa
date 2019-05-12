@@ -57,6 +57,27 @@ namespace DotNetDsa
       string b = "distance";
       var editDistResult = DynamicProgramming.EditDistance(a, b);
       Console.WriteLine("Editing Distance of {0}, {1}: {2}", a, b, editDistResult[a.Length, b.Length]);
+      var sequencePairs = GenerateNucleotideSequencePairs(10, 5);
+      foreach(var pair in sequencePairs) {
+        editDistResult = DynamicProgramming.EditDistance(pair.Item1, pair.Item2);
+        Console.WriteLine("Editing Distance of {0}, {1}: {2}", pair.Item1, pair.Item2, editDistResult[pair.Item1.Length, pair.Item2.Length]);
+      }
+    }
+    static Tuple<string, string>[] GenerateNucleotideSequencePairs(int count, int length) {
+      var sequencePairs = new Tuple<string, string>[count];
+      for (var i = 0; i < sequencePairs.Length; i++) {
+        sequencePairs[i] = new Tuple<string, string> (GenerateNucleotideSequence(length), GenerateNucleotideSequence(length));
+      }
+      return sequencePairs;
+    }
+    static string GenerateNucleotideSequence(int length) {
+      char[] nucleobase = { 'G', 'A', 'T', 'C'};
+      char[] sequence = new char[length];
+      var rand = new Random();
+      for (var i = 0; i < length; i++){
+        sequence[i] = nucleobase[rand.Next() % 4];
+      }
+      return new string(sequence);
     }
     static void RunHashTable() {
       const int capacity = 10, n = 50;
