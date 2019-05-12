@@ -5,6 +5,25 @@ using System.Linq;
 using DotNetDsa.Utils;
 namespace DotNetDsa.Algorithms {
   public class DynamicProgramming {
+    public static int[,] EditDistance(string a, string b) {
+      int [,] arr = new int[a.Length + 1, b.Length + 1];
+      for (var i = 1; i <= a.Length; i++)
+        arr[i, 0] = i;
+      for (var j = 1; j <= b.Length; j++)
+        arr[0, j] = j;
+      for (var j = 1; j <= b.Length; j++) {
+        for (var i = 1; i <= a.Length; i++) {
+          int ins = arr[i, j - 1] + 1;
+          int del = arr[i - 1, j] + 1;
+          int m = arr[i - 1, j - 1]; 
+          if (a[i - 1] != b[j - 1]) {
+            m++; 
+          }
+          arr[i, j] = Math.Min(m, Math.Min(ins, del));
+        }
+      }
+      return arr;
+    }
     public static int[,] KnapsackWithoutRepetitions(int w, Tuple<int, int>[] items) {
       int n = items.Length;
       int[,] arr = new int[w + 1, n + 1];

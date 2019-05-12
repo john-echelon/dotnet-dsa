@@ -53,6 +53,10 @@ namespace DotNetDsa
         // var result = DynamicProgramming.KnapsackWithoutRepetitionsVariant1(capacity, items);
         // Console.WriteLine("Knapsack without Repetitions, knapsack capacity {0}, max total value {1}", capacity, result[items.Length, capacity]);
       }
+      string a = "editing";
+      string b = "distance";
+      var editDistResult = DynamicProgramming.EditDistance(a, b);
+      Console.WriteLine("Editing Distance of {0}, {1}: {2}", a, b, editDistResult[a.Length, b.Length]);
     }
     static void RunHashTable() {
       const int capacity = 10, n = 50;
