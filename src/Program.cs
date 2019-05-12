@@ -18,6 +18,7 @@ namespace DotNetDsa
     public StubHashTable(int capacity = 10, float loadFactor = 1.0f): base(capacity, loadFactor){
     }
   }
+  // TODO: Use cmd line args to invoke menu options
   class Program
   {
      static void Main(string[] args)
@@ -32,8 +33,26 @@ namespace DotNetDsa
       RunSort(Sort.Quick);
       RunSort(Sort.Merge);
       // RunNumeric();
-      RunHashTable();
+      // RunHashTable();
+      RunDP();
       #endif
+    }
+    static void RunDP() {
+      var items = new Tuple<int, int>[] { 
+        new Tuple<int, int>(10, 60),
+        new Tuple<int, int>(20, 100),
+        new Tuple<int, int>(30, 120),
+      };
+      int[] knapsackWeights = { 10, 20, 30, 40, 50, 60 }; 
+      foreach(var capacity in knapsackWeights) {
+        var result = DynamicProgramming.KnapsackWithoutRepetitions(capacity, items);
+        Console.WriteLine("Knapsack without Repetitions, knapsack capacity {0}, max total value {1}", capacity, result[capacity, items.Length]);
+        var backtrack = DynamicProgramming.KnapsackWithoutRepetitionsBacktrack(capacity, items);
+        var output = Helper.Display(backtrack);
+        Console.WriteLine("{0}", output);
+        // var result = DynamicProgramming.KnapsackWithoutRepetitionsVariant1(capacity, items);
+        // Console.WriteLine("Knapsack without Repetitions, knapsack capacity {0}, max total value {1}", capacity, result[items.Length, capacity]);
+      }
     }
     static void RunHashTable() {
       const int capacity = 10, n = 50;
