@@ -13,8 +13,7 @@ namespace DotNetDsa.Benchmark
   public class SortBenchmark
   {
     private int[] arr;
-    [Params(100)]
-    // [Params(100000, 1000000, 10000000)]
+    [Params(10000, 100000, 1000000)]
     public int N;
     [GlobalSetup]
     public void Setup()

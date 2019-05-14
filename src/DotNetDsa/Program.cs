@@ -2,10 +2,11 @@
 using DotNetDsa.Utils;
 using DotNetDsa.Algorithms;
 using DotNetDsa.DataStructures;
-using DotNetDsa.Benchmark;
-using BenchmarkDotNet.Running;
+// using BenchmarkDotNet.Running;
 using System.Collections.Generic;
 using System.Linq;
+using CommandLine;
+using System.Reflection;
 
 namespace DotNetDsa
 {
@@ -21,21 +22,40 @@ namespace DotNetDsa
   // TODO: Use cmd line args to invoke menu options
   class Program
   {
-     static void Main(string[] args)
+  [Verb("sort", HelpText = "Run Sort test cases.")]
+  class SortOptions {
+    [Option(
+      'a', "all",
+      Default = false,
+      HelpText = "Sort using all available sort methods.")]
+    public bool All { get; set; }
+
+    [Option('m', "method", Required = false, HelpText = "The name of the sort [m]ethod used to process to standard output.")]
+    public IEnumerable<string> SortMethods { get; set; }
+  }
+  [Verb("numeric", HelpText = "Run Numeric tests cases.")]
+  class NumericOptions {
+    // TODO: Options here
+  }
+  [Verb("hash", HelpText = "Run Hash tests cases.")]
+  class HashOptions {
+    // TODO: Options here
+  }
+  [Verb("dp", HelpText = "Run Dynamic Programming tests cases.")]
+  class DynamicProgrammingOptions {
+    // TODO: Options here
+  }
+     static int Main(string[] args)
     {
-      #if RELEASE
-      RunBenchmarks();
-      #else
-      RunSort(Sort.Heap);
-      RunSort(Sort.Bubble);
-      RunSort(Sort.Selection);
-      RunSort(Sort.Insertion);
-      RunSort(Sort.Quick);
-      RunSort(Sort.Merge);
+      return CommandLine.Parser.Default.ParseArguments<SortOptions, NumericOptions, HashOptions>(args)
+      .MapResult(
+        (SortOptions opts) => RunSort(opts),
+        errs => 1);
+      /*
       // RunNumeric();
       // RunHashTable();
       RunDP();
-      #endif
+      */
     }
     static void RunDP() {
       var items = new Tuple<int, int>[] { 
@@ -57,7 +77,7 @@ namespace DotNetDsa
       string b = "distance";
       var editDistResult = DynamicProgramming.EditDistance(a, b);
       Console.WriteLine("Editing Distance of {0}, {1}: {2}", a, b, editDistResult[a.Length, b.Length]);
-      var sequencePairs = GenerateNucleotideSequencePairs(10, 5);
+      var sequencePairs = GenerateNucleotideSequencePairs(10, 15);
       foreach(var pair in sequencePairs) {
         editDistResult = DynamicProgramming.EditDistance(pair.Item1, pair.Item2);
         Console.WriteLine("Editing Distance of {0}, {1}: {2}", pair.Item1, pair.Item2, editDistResult[pair.Item1.Length, pair.Item2.Length]);
@@ -118,6 +138,40 @@ namespace DotNetDsa
       var output = Helper.Display(arr2);
       Console.WriteLine("{0}", output);
     }
+    static int RunSort(SortOptions opt) {
+      if (opt.All) {
+        RunSort(Sort.Heap);
+        RunSort(Sort.Bubble);
+        RunSort(Sort.Selection);
+        RunSort(Sort.Insertion);
+        RunSort(Sort.Quick);
+        RunSort(Sort.Merge);
+      } else {
+        Type t = typeof(Sort);
+        Type[] genericArguments = new Type[] { typeof(int) };
+        foreach(var methodName in opt.SortMethods) {
+          var meths = from m in typeof(Sort).GetMethods()
+                    where m.Name == methodName && m.IsGenericMethod
+                    let parameters = m.GetParameters()
+                    where parameters.Length == 1
+                    select m;
+          MethodInfo genericMethodInfo = meths.Single().MakeGenericMethod(genericArguments);
+          RunSort(genericMethodInfo);
+        }
+      }
+      return 0;
+    }
+    static void RunSort(MethodInfo act) {
+      var arr = new int[30];
+      Helper.FillRandom(arr, 100);
+      var output = Helper.Display(arr);
+      Console.WriteLine("{0}", output);
+      var type = act.GetType();
+      Console.WriteLine("Running {0}...", act.Name);
+      act.Invoke(null, new object[] { arr });
+      output = Helper.Display(arr);
+      Console.WriteLine("{0}", output);
+    }
     static void RunSort(Action<int[]> act) {
       var arr = new int[30];
       Helper.FillRandom(arr, 100);
@@ -128,10 +182,6 @@ namespace DotNetDsa
       act(arr);
       output = Helper.Display(arr);
       Console.WriteLine("{0}", output);
-    }
-    static void RunBenchmarks() {
-      // var summary = BenchmarkRunner.Run<SortBenchmark>();
-      var summary = BenchmarkRunner.Run<NumericBenchmark>();
     }
   }
 }
