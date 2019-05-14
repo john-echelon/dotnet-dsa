@@ -10,6 +10,10 @@ using System.Reflection;
 
 namespace DotNetDsa
 {
+  public enum TestNameNumeric {
+    SieveOfEratosthenes,
+    UniversalHashingFamily,
+  } 
   public class StubHashTable<TKey, TValue>: HashTable<TKey,TValue> where TKey: IComparable<TKey> {
     public List<KeyValuePair<TKey, TValue>>[] Store {
       get {
@@ -27,15 +31,33 @@ namespace DotNetDsa
     [Option(
       'a', "all",
       Default = false,
-      HelpText = "Sort using all available sort methods.")]
+      HelpText = "Sort using [a]ll available sort methods.")]
     public bool All { get; set; }
 
-    [Option('m', "method", Required = false, HelpText = "The name of the sort [m]ethod used to process to standard output.")]
-    public IEnumerable<string> SortMethods { get; set; }
+    [Option('t', "test", Required = false, HelpText = "The name of the [t]est case used to process to standard output.")]
+    public IEnumerable<string> TestName { get; set; }
+    [Option(
+      'r', "range",
+      Default = 100,
+      HelpText = "Determines the max [r]ange of the generated number value from 0-[range-value].")]
+    public int Range { get; set; }
+    [Option(
+      'c', "count",
+      Default = 10,
+      HelpText = "The [c]ount of the generated list to be sorted.")]
+    public int Count { get; set; }
   }
   [Verb("numeric", HelpText = "Run Numeric tests cases.")]
   class NumericOptions {
-    // TODO: Options here
+    [Option('t', "test", Required = true, HelpText = "The corresponding [t]est case number.")]
+    public int TestNumber { get; set; }
+    [Option(
+      'c', "count",
+      Default = 10,
+      HelpText = "The [c]ount corresponds to the number operations to perform.")]
+    public int Count { get; set; }
+    [Option('p', "params", Required = false, HelpText = "Additional [p]arams used for a particular test case.")]
+    public IEnumerable<int> Params { get; set; }
   }
   [Verb("hash", HelpText = "Run Hash tests cases.")]
   class HashOptions {
@@ -50,6 +72,7 @@ namespace DotNetDsa
       return CommandLine.Parser.Default.ParseArguments<SortOptions, NumericOptions, HashOptions>(args)
       .MapResult(
         (SortOptions opts) => RunSort(opts),
+        (NumericOptions opts) => RunNumeric(opts),
         errs => 1);
       /*
       // RunNumeric();
@@ -116,8 +139,36 @@ namespace DotNetDsa
       var output2 = Helper.Display(values);
       Console.WriteLine("{0}", output2);
     }
-    static void RunNumeric() {
-      var hashCount = 20;
+    static int RunNumeric(NumericOptions opt) {
+      var testName = Enum.GetName(typeof(TestNameNumeric), opt.TestNumber);
+      var methodName = "Run" + testName;
+      Console.WriteLine("Running test: {0}", testName);
+      Type[] parameterTypes = { typeof(NumericOptions) };
+      MethodInfo methodInfo = typeof(Program).GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Static);
+      methodInfo.Invoke(null, new object[] { opt });
+      return 0;
+    }
+    static void RunSieveOfEratosthenes(NumericOptions opt) {
+      var p = opt.Params.ToArray();
+      var hasParams = p.Length > 0;
+      int n = hasParams ? p[0] : Int32.MaxValue/100;
+      int m = opt.Count;
+      var arr = Numeric.GetPrimes(n);
+      Console.WriteLine("N: {0:N0}. Primes Found: {1:N0}", n, arr.Length);
+      string output;
+      if (arr.Length - m < 1)  {
+        output = Helper.Display(arr);
+        Console.WriteLine("Outputting primes: {0}", output);
+      }
+      else {
+        var arr2 = new int[m];
+        Array.Copy(arr, arr.Length-m, arr2, 0, m);
+        output = Helper.Display(arr2);
+        Console.WriteLine("Outputting the last {0} primes: {1}", m, output);
+      }
+    }
+    static void RunUniversalHashingFamily(NumericOptions opt) {
+      var hashCount = opt.Count;
       var hashes = new uint[hashCount];
       var randomizer = new Random();
       var hashFunc = Hashing.UniversalHashingFamily();
@@ -127,61 +178,43 @@ namespace DotNetDsa
       Console.WriteLine("Universal Hash Family values for x: 0...{0} ", hashCount);
       var output2 = Helper.Display(hashes);
       Console.WriteLine("{0}", output2);
-
-
-      int n = Int32.MaxValue/4, m = 100;
-      var arr = Numeric.GetPrimes(n);
-      Console.WriteLine("Max integer value:{0:n}", Int32.MaxValue);
-      Console.WriteLine("Sieve of Eratosthenes\nN:{0:n}\nPrimes Found:{1:n}", n, arr.Length);
-      var arr2 = new int[m];
-      Array.Copy(arr, arr.Length-m, arr2, 0, m);
-      var output = Helper.Display(arr2);
-      Console.WriteLine("{0}", output);
     }
     static int RunSort(SortOptions opt) {
+      Type t = typeof(Sort);
+      Type[] genericArguments = new Type[] { typeof(int) };
+      var sortMethods = from m in typeof(Sort).GetMethods()
+        where m.IsGenericMethod
+        let parameters = m.GetParameters()
+        where parameters.Length == 1
+        select m;
       if (opt.All) {
-        RunSort(Sort.Heap);
-        RunSort(Sort.Bubble);
-        RunSort(Sort.Selection);
-        RunSort(Sort.Insertion);
-        RunSort(Sort.Quick);
-        RunSort(Sort.Merge);
+        foreach(var method in sortMethods) {
+          MethodInfo genericMethodInfo = method.MakeGenericMethod(genericArguments);
+          RunSort(genericMethodInfo, opt);
+        }
       } else {
-        Type t = typeof(Sort);
-        Type[] genericArguments = new Type[] { typeof(int) };
-        foreach(var methodName in opt.SortMethods) {
-          var meths = from m in typeof(Sort).GetMethods()
-                    where m.Name == methodName && m.IsGenericMethod
+        foreach(var methodName in opt.TestName) {
+          var method = (from m in sortMethods
+                    where m.Name.ToLower() == methodName.ToLower()
                     let parameters = m.GetParameters()
                     where parameters.Length == 1
-                    select m;
-          MethodInfo genericMethodInfo = meths.Single().MakeGenericMethod(genericArguments);
-          RunSort(genericMethodInfo);
+                    select m).Single();
+          MethodInfo genericMethodInfo = method.MakeGenericMethod(genericArguments);
+          RunSort(genericMethodInfo, opt);
         }
       }
       return 0;
     }
-    static void RunSort(MethodInfo act) {
-      var arr = new int[30];
-      Helper.FillRandom(arr, 100);
-      var output = Helper.Display(arr);
-      Console.WriteLine("{0}", output);
-      var type = act.GetType();
+    static void RunSort(MethodInfo act, SortOptions opt) {
+      var arr = new int[opt.Count];
+      Helper.FillRandom(arr, opt.Range);
       Console.WriteLine("Running {0}...", act.Name);
+      var output = Helper.Display(arr);
+      Console.WriteLine("Unsorted: {0}", output);
+      var type = act.GetType();
       act.Invoke(null, new object[] { arr });
       output = Helper.Display(arr);
-      Console.WriteLine("{0}", output);
-    }
-    static void RunSort(Action<int[]> act) {
-      var arr = new int[30];
-      Helper.FillRandom(arr, 100);
-      var output = Helper.Display(arr);
-      Console.WriteLine("{0}", output);
-      var type = act.GetType();
-      Console.WriteLine("Running {0}...", act.Method.Name);
-      act(arr);
-      output = Helper.Display(arr);
-      Console.WriteLine("{0}", output);
+      Console.WriteLine("Sorted: {0}", output);
     }
   }
 }
