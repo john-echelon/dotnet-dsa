@@ -12,7 +12,11 @@ namespace DotNetDsa
 {
   public enum TestNameNumeric {
     SieveOfEratosthenes,
+  } 
+  public enum TestNameHashing {
     UniversalHashingFamily,
+    HashTable,
+    HashTableDistribution
   } 
   public class StubHashTable<TKey, TValue>: HashTable<TKey,TValue> where TKey: IComparable<TKey> {
     public List<KeyValuePair<TKey, TValue>>[] Store {
@@ -23,60 +27,78 @@ namespace DotNetDsa
     public StubHashTable(int capacity = 10, float loadFactor = 1.0f): base(capacity, loadFactor){
     }
   }
-  // TODO: Use cmd line args to invoke menu options
   class Program
   {
-  [Verb("sort", HelpText = "Run Sort test cases.")]
-  class SortOptions {
-    [Option(
-      'a', "all",
-      Default = false,
-      HelpText = "Sort using [a]ll available sort methods.")]
-    public bool All { get; set; }
+    [Verb("sort", HelpText = "Run Sort test cases.")]
+    class SortOptions {
+      [Option(
+        'a', "all",
+        Default = false,
+        HelpText = "Sort using [a]ll available sort methods.")]
+      public bool All { get; set; }
 
-    [Option('t', "test", Required = false, HelpText = "The name of the [t]est case used to process to standard output.")]
-    public IEnumerable<string> TestName { get; set; }
-    [Option(
-      'r', "range",
-      Default = 100,
-      HelpText = "Determines the max [r]ange of the generated number value from 0-[range-value].")]
-    public int Range { get; set; }
-    [Option(
-      'c', "count",
-      Default = 10,
-      HelpText = "The [c]ount of the generated list to be sorted.")]
-    public int Count { get; set; }
-  }
-  [Verb("numeric", HelpText = "Run Numeric tests cases.")]
-  class NumericOptions {
-    [Option('t', "test", Required = true, HelpText = "The corresponding [t]est case number.")]
-    public int TestNumber { get; set; }
-    [Option(
-      'c', "count",
-      Default = 10,
-      HelpText = "The [c]ount corresponds to the number operations to perform.")]
-    public int Count { get; set; }
+      [Option('t', "test", Required = false, HelpText = "The name of the [t]est case used to process to standard output.")]
+      public IEnumerable<string> TestName { get; set; }
+      [Option(
+        'r', "range",
+        Default = 100,
+        HelpText = "Determines the max [r]ange of the generated number value from 0-[range-value].")]
+      public int Range { get; set; }
+      [Option(
+        'c', "count",
+        Default = 10,
+        HelpText = "The [c]ount of numbers to generate.")]
+      public int Count { get; set; }
+      [Option('p', "params", Required = false, HelpText = "Additional [p]arams used for a particular test case.")]
+      public IEnumerable<int> Params { get; set; }
+    }
+    [Verb("numeric", HelpText = "Run Numeric tests cases.")]
+    class NumericOptions {
+      [Option('t', "test", Required = true, HelpText = "The corresponding [t]est case number.")]
+      public int TestNumber { get; set; }
+      [Option(
+        'c', "count",
+        Default = 10,
+        HelpText = "The [c]ount corresponds to the number operations to perform.")]
+      public int Count { get; set; }
     [Option('p', "params", Required = false, HelpText = "Additional [p]arams used for a particular test case.")]
     public IEnumerable<int> Params { get; set; }
-  }
-  [Verb("hash", HelpText = "Run Hash tests cases.")]
-  class HashOptions {
-    // TODO: Options here
-  }
-  [Verb("dp", HelpText = "Run Dynamic Programming tests cases.")]
-  class DynamicProgrammingOptions {
-    // TODO: Options here
-  }
-     static int Main(string[] args)
+    }
+    [Verb("hash", HelpText = "Run Hash tests cases.")]
+    class HashingOptions {
+      [Option('t', "test", Required = true, HelpText = "The corresponding [t]est case number.")]
+      public int TestNumber { get; set; }
+      [Option(
+        'c', "count",
+        Default = 10,
+        HelpText = "The [c]ount corresponds to the number operations to perform.")]
+      public int Count { get; set; }
+      [Option('p', "params", Required = false, HelpText = "Additional [p]arams used for a particular test case.")]
+      public IEnumerable<int> Params { get; set; }
+    }
+    [Verb("dp", HelpText = "Run Dynamic Programming tests cases.")]
+    class DynamicProgrammingOptions {
+      [Option('t', "test", Required = true, HelpText = "The corresponding [t]est case number.")]
+      public int TestNumber { get; set; }
+      [Option(
+        'c', "count",
+        Default = 10,
+        HelpText = "The [c]ount corresponds to the number operations to perform.")]
+      public int Count { get; set; }
+      [Option('p', "params", Required = false, HelpText = "Additional [p]arams used for a particular test case.")]
+      public IEnumerable<int> Params { get; set; }
+    }
+    static int Main(string[] args)
     {
-      return CommandLine.Parser.Default.ParseArguments<SortOptions, NumericOptions, HashOptions>(args)
+      return CommandLine.Parser.Default.ParseArguments<SortOptions, NumericOptions, HashingOptions>(args)
       .MapResult(
         (SortOptions opts) => RunSort(opts),
         (NumericOptions opts) => RunNumeric(opts),
+        (HashingOptions opts) => RunHashing(opts),
         errs => 1);
       /*
-      // RunNumeric();
-      // RunHashTable();
+      TODO: Build CLI driven versions of
+      RunHashTable();
       RunDP();
       */
     }
@@ -122,22 +144,69 @@ namespace DotNetDsa
       }
       return new string(sequence);
     }
-    static void RunHashTable() {
-      const int capacity = 10, n = 50;
-      var ht = new StubHashTable<Guid, int>(capacity, 10);
+    static int RunHashing(HashingOptions opt) {
+      var testName = Enum.GetName(typeof(TestNameHashing), opt.TestNumber);
+      var methodName = "Run" + testName;
+      Console.WriteLine("Running test: {0}", testName);
+      Type[] parameterTypes = { typeof(HashingOptions) };
+      MethodInfo methodInfo = typeof(Program).GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Static);
+      methodInfo.Invoke(null, new object[] { opt });
+      return 0;
+    }
+    static void RunUniversalHashingFamily(HashingOptions opt) {
+      int[] testParams = new int[] { 100, 100, 10 };
+      SetupParams(opt.Params, testParams);
+      var hashCount = testParams[0];
+      var bucketSize = testParams[1];
+      var numResults = testParams[2];
+      var hashes = new uint[hashCount];
+      var hashFunc = Hashing.UniversalHashingFamily();
+      for (var i = 0; i < hashCount; i++) {
+        hashes[i] = hashFunc((uint) i) % (uint) bucketSize;
+      }
+      Console.WriteLine("Universal Hash Family values for x: [0-{0}] ", hashCount);
+      DisplayResults(hashes, numResults);
+    }
+    static void RunHashTableDistribution(HashingOptions opt) {
+      int[] testParams = new int[] { 50, 10 };
+      SetupParams(opt.Params, testParams);
+      int n = testParams[0];
+      int capacity = testParams[1];
+      float loadFactor = n;
+      var ht = new StubHashTable<Guid, int>(capacity, loadFactor);
       var keys = new List<Guid>();
       for (var i =0; i < n; i++) {
         var guid = Guid.NewGuid();
         keys.Add(guid);
-        ht[guid] = i*2;
+        ht[guid] = i;
+      }
+      var chainLengths = ht.Store.Select(ele => (double) (ele?.Count ?? 0)).ToList();
+      Console.WriteLine("HashTable Distribution for n: {0} capacity: {1}", n, capacity);
+      Console.WriteLine("Mean: {0} Median: {1} Mode {2}", chainLengths.Average(), Helper.Median(chainLengths), Helper.Mode(chainLengths));
+      var sd = Helper.StandardDeviation(chainLengths);
+      Console.WriteLine("Standard Deviation {0}", sd);
+    }
+    static void RunHashTable(HashingOptions opt) {
+      int[] testParams = new int[] { 50, 10, 10 };
+      SetupParams(opt.Params, testParams);
+      int n = testParams[0];
+      int capacity = testParams[1];
+      int numResults = testParams[2];
+      float loadFactor = 1f;
+      var ht = new StubHashTable<Guid, int>(capacity, loadFactor);
+      var keys = new List<Guid>();
+      for (var i =0; i < n; i++) {
+        var guid = Guid.NewGuid();
+        keys.Add(guid);
+        ht[guid] = i;
       }
       var chainSizes = ht.Store.Select(ele => ele?.Count ?? 0).ToArray();
-      Console.WriteLine("HashTable Distribution for cap: {0} n: {1} ", capacity, n);
-      var output = Helper.Display(chainSizes);
-      Console.WriteLine("{0}", output);
-      var values = keys.Select(ele => ht[ele]).ToArray(); 
-      var output2 = Helper.Display(values);
-      Console.WriteLine("{0}", output2);
+      Console.WriteLine("HashTable Entries for n entries: {0} capacity: {1} ", n, capacity);
+      var arr = new string[keys.Count];
+      for(var i = 0; i < keys.Count; i++) {
+        arr[i] = string.Format("{0}: {1}", keys[i], ht[keys[i]]);
+      }
+      DisplayResults(arr, numResults, "\n");
     }
     static int RunNumeric(NumericOptions opt) {
       var testName = Enum.GetName(typeof(TestNameNumeric), opt.TestNumber);
@@ -149,35 +218,13 @@ namespace DotNetDsa
       return 0;
     }
     static void RunSieveOfEratosthenes(NumericOptions opt) {
-      var p = opt.Params.ToArray();
-      var hasParams = p.Length > 0;
-      int n = hasParams ? p[0] : Int32.MaxValue/100;
-      int m = opt.Count;
-      var arr = Numeric.GetPrimes(n);
-      Console.WriteLine("N: {0:N0}. Primes Found: {1:N0}", n, arr.Length);
-      string output;
-      if (arr.Length - m < 1)  {
-        output = Helper.Display(arr);
-        Console.WriteLine("Outputting primes: {0}", output);
-      }
-      else {
-        var arr2 = new int[m];
-        Array.Copy(arr, arr.Length-m, arr2, 0, m);
-        output = Helper.Display(arr2);
-        Console.WriteLine("Outputting the last {0} primes: {1}", m, output);
-      }
-    }
-    static void RunUniversalHashingFamily(NumericOptions opt) {
-      var hashCount = opt.Count;
-      var hashes = new uint[hashCount];
-      var randomizer = new Random();
-      var hashFunc = Hashing.UniversalHashingFamily();
-      for (var i = 0; i < hashCount; i++) {
-        hashes[i] = hashFunc((uint) i) % 100;
-      }
-      Console.WriteLine("Universal Hash Family values for x: 0...{0} ", hashCount);
-      var output2 = Helper.Display(hashes);
-      Console.WriteLine("{0}", output2);
+      int[] testParams = new int[] { Int32.MaxValue/100, 10 };
+      SetupParams(opt.Params, testParams);
+      int numPrimes = testParams[0];
+      int numResults = testParams[1];
+      var arr = Numeric.GetPrimes(numPrimes);
+      Console.WriteLine("N: {0:N0}. Primes Found: {1:N0}", testParams[0], arr.Length);
+      DisplayResults(arr, numResults);
     }
     static int RunSort(SortOptions opt) {
       Type t = typeof(Sort);
@@ -206,6 +253,10 @@ namespace DotNetDsa
       return 0;
     }
     static void RunSort(MethodInfo act, SortOptions opt) {
+      int[] testParams = new int[] { 20 };
+      SetupParams(opt.Params, testParams);
+      var numResults = testParams[0];
+
       var arr = new int[opt.Count];
       Helper.FillRandom(arr, opt.Range);
       Console.WriteLine("Running {0}...", act.Name);
@@ -213,8 +264,26 @@ namespace DotNetDsa
       Console.WriteLine("Unsorted: {0}", output);
       var type = act.GetType();
       act.Invoke(null, new object[] { arr });
-      output = Helper.Display(arr);
-      Console.WriteLine("Sorted: {0}", output);
+      DisplayResults(arr, numResults);
+    }
+    static void SetupParams(IEnumerable<int> optionParams, int[] testCaseParams) {
+      var p = optionParams.ToArray();
+      for (var i = 0; i < testCaseParams.Length && i < p.Length; i++) {
+        testCaseParams[i] = p[i];
+      }
+    }
+    static void DisplayResults<T>(T[] arr, int numResults, string separator = ", ") {
+      string output;
+      if (arr.Length - numResults < 1)  {
+        output = Helper.Display(arr, separator);
+        Console.WriteLine("Outputting results: {0}", output);
+      }
+      else {
+        var arr2 = new T[numResults];
+        Array.Copy(arr, arr.Length-numResults, arr2, 0, numResults);
+        output = Helper.Display(arr2, separator);
+        Console.WriteLine("Outputting the last {0} results: {1}", numResults, output);
+      }
     }
   }
 }
