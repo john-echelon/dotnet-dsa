@@ -2,7 +2,6 @@
 using DotNetDsa.Utils;
 using DotNetDsa.Algorithms;
 using DotNetDsa.DataStructures;
-// using BenchmarkDotNet.Running;
 using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
@@ -10,13 +9,14 @@ using System.Reflection;
 
 namespace DotNetDsa
 {
-  public enum TestNameNumeric {
+  public enum TestCaseName {
     SieveOfEratosthenes,
-  } 
-  public enum TestNameHashing {
     UniversalHashingFamily,
     HashTable,
-    HashTableDistribution
+    HashTableDistribution,
+    KnapsackWithoutRepetitions,
+    EditDistance,
+    EditDistanceOnGeneSequence,
   } 
   public class StubHashTable<TKey, TValue>: HashTable<TKey,TValue> where TKey: IComparable<TKey> {
     public List<KeyValuePair<TKey, TValue>>[] Store {
@@ -29,6 +29,9 @@ namespace DotNetDsa
   }
   class Program
   {
+    interface ICommandLineOption {
+      int TestNumber { get; set; }
+    }
     [Verb("sort", HelpText = "Run Sort test cases.")]
     class SortOptions {
       [Option(
@@ -52,32 +55,8 @@ namespace DotNetDsa
       [Option('p', "params", Required = false, HelpText = "Additional [p]arams used for a particular test case.")]
       public IEnumerable<int> Params { get; set; }
     }
-    [Verb("numeric", HelpText = "Run Numeric tests cases.")]
-    class NumericOptions {
-      [Option('t', "test", Required = true, HelpText = "The corresponding [t]est case number.")]
-      public int TestNumber { get; set; }
-      [Option(
-        'c', "count",
-        Default = 10,
-        HelpText = "The [c]ount corresponds to the number operations to perform.")]
-      public int Count { get; set; }
-    [Option('p', "params", Required = false, HelpText = "Additional [p]arams used for a particular test case.")]
-    public IEnumerable<int> Params { get; set; }
-    }
-    [Verb("hash", HelpText = "Run Hash tests cases.")]
-    class HashingOptions {
-      [Option('t', "test", Required = true, HelpText = "The corresponding [t]est case number.")]
-      public int TestNumber { get; set; }
-      [Option(
-        'c', "count",
-        Default = 10,
-        HelpText = "The [c]ount corresponds to the number operations to perform.")]
-      public int Count { get; set; }
-      [Option('p', "params", Required = false, HelpText = "Additional [p]arams used for a particular test case.")]
-      public IEnumerable<int> Params { get; set; }
-    }
-    [Verb("dp", HelpText = "Run Dynamic Programming tests cases.")]
-    class DynamicProgrammingOptions {
+    [Verb("run", HelpText = "Run tests cases.")]
+    class TestCaseOptions: ICommandLineOption {
       [Option('t', "test", Required = true, HelpText = "The corresponding [t]est case number.")]
       public int TestNumber { get; set; }
       [Option(
@@ -90,41 +69,77 @@ namespace DotNetDsa
     }
     static int Main(string[] args)
     {
-      return CommandLine.Parser.Default.ParseArguments<SortOptions, NumericOptions, HashingOptions>(args)
+      return CommandLine.Parser.Default.ParseArguments<SortOptions, TestCaseOptions>(args)
       .MapResult(
         (SortOptions opts) => RunSort(opts),
-        (NumericOptions opts) => RunNumeric(opts),
-        (HashingOptions opts) => RunHashing(opts),
+        (TestCaseOptions opts) => Run(opts),
         errs => 1);
-      /*
-      TODO: Build CLI driven versions of
-      RunHashTable();
-      RunDP();
-      */
     }
-    static void RunDP() {
-      var items = new Tuple<int, int>[] { 
-        new Tuple<int, int>(10, 60),
-        new Tuple<int, int>(20, 100),
-        new Tuple<int, int>(30, 120),
-      };
-      int[] knapsackWeights = { 10, 20, 30, 40, 50, 60 }; 
+    static void RunKnapsackWithoutRepetitions(TestCaseOptions opt) {
+      Console.Write("Run using defaults? (y/n):");
+      var runDefaults = Console.ReadLine().Trim();
+
+      Tuple<int,int>[] items; 
+      int[] knapsackWeights;
+      if(runDefaults.ToLower().Equals("y") || runDefaults == string.Empty) {
+        items = new Tuple<int, int>[] { 
+          new Tuple<int, int>(10, 60),
+          new Tuple<int, int>(20, 100),
+          new Tuple<int, int>(30, 120),
+        };
+        knapsackWeights = new int[]{ 10, 20, 30, 40, 50, 60 }; 
+      } else {
+        Console.Write("Enter num knapsack items:");
+        var numItems = Convert.ToInt32(Console.ReadLine().Trim());
+        items = new Tuple<int, int>[numItems];
+        for (var i = 0; i < numItems; i++) {
+          Console.Write("\nEnter weight and value for item {0}:", i + 1);
+          var knapItem = ReadLineParseInts();
+          items[i] = new Tuple<int, int>(Convert.ToInt32(knapItem[0]), Convert.ToInt32(knapItem[1]));
+        }
+        Console.Write("\nEnter optimal knapsack weights to test:");
+        var weights = ReadLineParseInts();
+        knapsackWeights = new int[weights.Length];
+        for (var i = 0; i < weights.Length; i++) {
+          knapsackWeights[i] = Convert.ToInt32(weights[i]);
+        }
+      }
       foreach(var capacity in knapsackWeights) {
         var result = DynamicProgramming.KnapsackWithoutRepetitions(capacity, items);
         Console.WriteLine("Knapsack without Repetitions, knapsack capacity {0}, max total value {1}", capacity, result[capacity, items.Length]);
         var backtrack = DynamicProgramming.KnapsackWithoutRepetitionsBacktrack(capacity, items);
         var output = Helper.Display(backtrack);
         Console.WriteLine("{0}", output);
-        // var result = DynamicProgramming.KnapsackWithoutRepetitionsVariant1(capacity, items);
-        // Console.WriteLine("Knapsack without Repetitions, knapsack capacity {0}, max total value {1}", capacity, result[items.Length, capacity]);
       }
-      string a = "editing";
-      string b = "distance";
+    }
+    static void RunEditDistance(TestCaseOptions opt) {
+      Console.Write("Run using defaults? (y/n):");
+      var runDefaults = Console.ReadLine().Trim();
+      string a, b;
+      a = "editing";
+      b = "distance";
+      if(runDefaults.ToLower().Equals("n")) {
+        Console.Write("\nEnter first string:");
+        a = Console.ReadLine();
+        Console.Write("\nEnter second string:");
+        b = Console.ReadLine();
+      }
       var editDistResult = DynamicProgramming.EditDistance(a, b);
       Console.WriteLine("Editing Distance of {0}, {1}: {2}", a, b, editDistResult[a.Length, b.Length]);
-      var sequencePairs = GenerateNucleotideSequencePairs(10, 15);
+    }
+    static void RunEditDistanceOnGeneSequence(TestCaseOptions opt) {
+      Console.Write("Run using defaults? (y/n):");
+      var runDefaults = Console.ReadLine().Trim();
+      int count = 10, length = 15;
+      if(runDefaults.ToLower().Equals("n")) {
+        Console.Write("\nEnter sequence count and length:");
+        var inputs = ReadLineParseInts();
+        count = inputs[0];
+        length = inputs[1];
+      }
+      var sequencePairs = GenerateNucleotideSequencePairs(count, length);
       foreach(var pair in sequencePairs) {
-        editDistResult = DynamicProgramming.EditDistance(pair.Item1, pair.Item2);
+        var editDistResult = DynamicProgramming.EditDistance(pair.Item1, pair.Item2);
         Console.WriteLine("Editing Distance of {0}, {1}: {2}", pair.Item1, pair.Item2, editDistResult[pair.Item1.Length, pair.Item2.Length]);
       }
     }
@@ -144,16 +159,7 @@ namespace DotNetDsa
       }
       return new string(sequence);
     }
-    static int RunHashing(HashingOptions opt) {
-      var testName = Enum.GetName(typeof(TestNameHashing), opt.TestNumber);
-      var methodName = "Run" + testName;
-      Console.WriteLine("Running test: {0}", testName);
-      Type[] parameterTypes = { typeof(HashingOptions) };
-      MethodInfo methodInfo = typeof(Program).GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Static);
-      methodInfo.Invoke(null, new object[] { opt });
-      return 0;
-    }
-    static void RunUniversalHashingFamily(HashingOptions opt) {
+    static void RunUniversalHashingFamily(TestCaseOptions opt) {
       int[] testParams = new int[] { 100, 100, 10 };
       SetupParams(opt.Params, testParams);
       var hashCount = testParams[0];
@@ -167,7 +173,7 @@ namespace DotNetDsa
       Console.WriteLine("Universal Hash Family values for x: [0-{0}] ", hashCount);
       DisplayResults(hashes, numResults);
     }
-    static void RunHashTableDistribution(HashingOptions opt) {
+    static void RunHashTableDistribution(TestCaseOptions opt) {
       int[] testParams = new int[] { 50, 10 };
       SetupParams(opt.Params, testParams);
       int n = testParams[0];
@@ -182,11 +188,11 @@ namespace DotNetDsa
       }
       var chainLengths = ht.Store.Select(ele => (double) (ele?.Count ?? 0)).ToList();
       Console.WriteLine("HashTable Distribution for n: {0} capacity: {1}", n, capacity);
-      Console.WriteLine("Mean: {0} Median: {1} Mode {2}", chainLengths.Average(), Helper.Median(chainLengths), Helper.Mode(chainLengths));
+      Console.WriteLine("Mean: {0} Median: {1} Mode: {2}", chainLengths.Average(), Helper.Median(chainLengths), Helper.Mode(chainLengths));
       var sd = Helper.StandardDeviation(chainLengths);
       Console.WriteLine("Standard Deviation {0}", sd);
     }
-    static void RunHashTable(HashingOptions opt) {
+    static void RunHashTable(TestCaseOptions opt) {
       int[] testParams = new int[] { 50, 10, 10 };
       SetupParams(opt.Params, testParams);
       int n = testParams[0];
@@ -208,16 +214,7 @@ namespace DotNetDsa
       }
       DisplayResults(arr, numResults, "\n");
     }
-    static int RunNumeric(NumericOptions opt) {
-      var testName = Enum.GetName(typeof(TestNameNumeric), opt.TestNumber);
-      var methodName = "Run" + testName;
-      Console.WriteLine("Running test: {0}", testName);
-      Type[] parameterTypes = { typeof(NumericOptions) };
-      MethodInfo methodInfo = typeof(Program).GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Static);
-      methodInfo.Invoke(null, new object[] { opt });
-      return 0;
-    }
-    static void RunSieveOfEratosthenes(NumericOptions opt) {
+    static void RunSieveOfEratosthenes(TestCaseOptions opt) {
       int[] testParams = new int[] { Int32.MaxValue/100, 10 };
       SetupParams(opt.Params, testParams);
       int numPrimes = testParams[0];
@@ -265,6 +262,22 @@ namespace DotNetDsa
       var type = act.GetType();
       act.Invoke(null, new object[] { arr });
       DisplayResults(arr, numResults);
+    }
+    static int Run<TOptions>(TOptions opt) where TOptions: ICommandLineOption {
+      var testName = Enum.GetName(typeof(TestCaseName), opt.TestNumber);
+      var methodName = "Run" + testName;
+      Console.WriteLine("Running test: {0}", testName);
+      Type[] parameterTypes = { typeof(TOptions) };
+      MethodInfo methodInfo = typeof(Program).GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Static);
+      methodInfo.Invoke(null, new object[] { opt });
+      return 0;
+    }
+    static int[] ReadLineParseInts() {
+      return Console
+        .ReadLine()
+        .Split(new Char[] {' '}, StringSplitOptions.RemoveEmptyEntries)
+        .Select(item => int.Parse(item))
+        .ToArray();
     }
     static void SetupParams(IEnumerable<int> optionParams, int[] testCaseParams) {
       var p = optionParams.ToArray();
