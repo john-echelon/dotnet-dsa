@@ -182,6 +182,8 @@ namespace DotNetDsa
       }
       var result = DynamicProgramming.LongestCommonSubsequence(a, b);
       Console.WriteLine("LCS for input sequences {0}, {1}: {2}", a, b, result[a.Length, b.Length]);
+      var backtrackResult = DynamicProgramming.LCSBacktrack(result, a, b);
+      Console.WriteLine("Outputting Alignment {0}", new string(backtrackResult));
     }
     static void RunUniversalHashingFamily(TestCaseOptions opt) {
       int[] testParams = new int[] { 100, 100, 10 };

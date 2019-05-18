@@ -53,13 +53,34 @@ namespace DotNetDsa.Algorithms {
       int [,] arr = new int[a.Length + 1, b.Length + 1];
       for (var j = 1; j <= b.Length; j++) {
         for (var i = 1; i <= a.Length; i++) {
-          var ins = arr[i, j - 1];
-          var del = arr[i - 1, j];
-          var m = arr[i - 1, j - 1] + (a[i - 1] == b[j - 1] ? 1 : 0);
-          arr[i, j] = Math.Max(m, Math.Max(ins, del));
+          if (a[i - 1] == b[j - 1]) {
+            arr[i, j] = arr[i - 1, j - 1] + 1; 
+          } else { 
+            var ins = arr[i, j - 1];
+            var del = arr[i - 1, j];
+            arr[i, j] = Math.Max(ins, del);
+          }
         }
       }
       return arr;
+    }
+    public static char[] LCSBacktrack(int[,] arr, string a, string b) {
+      int i = arr.GetLength(0) - 1, j = arr.GetLength(1) - 1;
+      int index = arr[i, j];
+      char[] result = new char[index];
+      while (i > 0 || j > 0) {
+        if (i > 0 && j > 0 && a[i - 1] == b[j - 1]) {
+          result[--index] = a[i - 1];
+          i--; j--;
+        }
+        else if (i > 0 && (j == 0 || arr[i, j - 1] <= arr[i - 1, j])) {
+          i--;
+        }
+        else {
+          j--;
+        }
+      }
+      return result;
     }
     public static int[,] KnapsackWithoutRepetitions(int w, Tuple<int, int>[] items) {
       int n = items.Length;
