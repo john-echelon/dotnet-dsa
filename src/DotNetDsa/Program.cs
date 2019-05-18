@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
 using System.Reflection;
+using System.Text;
 
 namespace DotNetDsa
 {
@@ -17,6 +18,7 @@ namespace DotNetDsa
     KnapsackWithoutRepetitions,
     EditDistance,
     EditDistanceOnGeneSequence,
+    LongestCommonSubsequence,
   } 
   public class StubHashTable<TKey, TValue>: HashTable<TKey,TValue> where TKey: IComparable<TKey> {
     public List<KeyValuePair<TKey, TValue>>[] Store {
@@ -76,7 +78,7 @@ namespace DotNetDsa
         errs => 1);
     }
     static void RunKnapsackWithoutRepetitions(TestCaseOptions opt) {
-      Console.Write("Run using defaults? (y/n):");
+      Console.Write("Run using defaults? (Y/N):");
       var runDefaults = Console.ReadLine().Trim();
 
       Tuple<int,int>[] items; 
@@ -113,7 +115,7 @@ namespace DotNetDsa
       }
     }
     static void RunEditDistance(TestCaseOptions opt) {
-      Console.Write("Run using defaults? (y/n):");
+      Console.Write("Run using defaults? (Y/N):");
       var runDefaults = Console.ReadLine().Trim();
       string a, b;
       a = "editing";
@@ -126,9 +128,16 @@ namespace DotNetDsa
       }
       var editDistResult = DynamicProgramming.EditDistance(a, b);
       Console.WriteLine("Editing Distance of {0}, {1}: {2}", a, b, editDistResult[a.Length, b.Length]);
+
+      var sb = new StringBuilder();
+      var backtrackResult = DynamicProgramming.EditDistanceBacktrack(editDistResult, a, b);
+      foreach(var alignment in backtrackResult) {
+        sb.AppendFormat("[{0}:{1}] ", alignment.Item1, alignment.Item2);
+      }
+      Console.WriteLine("Outputting Alignment {0}", sb.ToString());
     }
     static void RunEditDistanceOnGeneSequence(TestCaseOptions opt) {
-      Console.Write("Run using defaults? (y/n):");
+      Console.Write("Run using defaults? (Y/N):");
       var runDefaults = Console.ReadLine().Trim();
       int count = 10, length = 15;
       if(runDefaults.ToLower().Equals("n")) {
@@ -158,6 +167,21 @@ namespace DotNetDsa
         sequence[i] = nucleobase[rand.Next() % 4];
       }
       return new string(sequence);
+    }
+    static void RunLongestCommonSubsequence(TestCaseOptions opt) {
+      Console.Write("Run using defaults? (Y/N):");
+      var runDefaults = Console.ReadLine().Trim();
+      string a, b;
+      a = "editing";
+      b = "distance";
+      if(runDefaults.ToLower().Equals("n")) {
+        Console.Write("\nEnter first string:");
+        a = Console.ReadLine();
+        Console.Write("\nEnter second string:");
+        b = Console.ReadLine();
+      }
+      var result = DynamicProgramming.LongestCommonSubsequence(a, b);
+      Console.WriteLine("LCS for input sequences {0}, {1}: {2}", a, b, result[a.Length, b.Length]);
     }
     static void RunUniversalHashingFamily(TestCaseOptions opt) {
       int[] testParams = new int[] { 100, 100, 10 };

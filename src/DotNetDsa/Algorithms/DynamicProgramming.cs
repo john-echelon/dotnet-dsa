@@ -24,6 +24,43 @@ namespace DotNetDsa.Algorithms {
       }
       return arr;
     }
+    public static List<Tuple<char?,char?>> EditDistanceBacktrack(int[,] arr, string a, string b) {
+      var i = arr.GetLength(0) - 1;
+      var j = arr.GetLength(1) - 1;
+      var alignment = new List<Tuple<char?, char?>>();
+      if (i == 0 && j == 0) {
+        return alignment;
+      }
+      while (i > 0 || j > 0) {
+        // insertion
+        if (j > 0 && arr[i, j] == arr[i, j - 1] + 1) {
+            alignment.Insert(0, new Tuple<char?, char?>('-', b[j - 1]));
+            --j;
+        }
+        // deletion
+        else if (i > 0 && arr[i, j] == arr[i - 1, j] + 1) {
+            alignment.Insert(0, new Tuple<char?, char?>(a[i - 1], '-'));
+            --i;
+        }
+        else if (i > 0 && j > 0) {
+          alignment.Insert(0, new Tuple<char?, char?>(a[i - 1], b[j - 1]));
+          --i; --j;
+        }
+      }
+      return alignment;
+    }
+    public static int[,] LongestCommonSubsequence(string a, string b) {
+      int [,] arr = new int[a.Length + 1, b.Length + 1];
+      for (var j = 1; j <= b.Length; j++) {
+        for (var i = 1; i <= a.Length; i++) {
+          var ins = arr[i, j - 1];
+          var del = arr[i - 1, j];
+          var m = arr[i - 1, j - 1] + (a[i - 1] == b[j - 1] ? 1 : 0);
+          arr[i, j] = Math.Max(m, Math.Max(ins, del));
+        }
+      }
+      return arr;
+    }
     public static int[,] KnapsackWithoutRepetitions(int w, Tuple<int, int>[] items) {
       int n = items.Length;
       int[,] arr = new int[w + 1, n + 1];
