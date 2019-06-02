@@ -3,11 +3,11 @@ Exercises in Data Structures and Algorithms for educational purposes.
 
 ## Description - Project Structure 
 The C# .NET solution consists of 3 projects:
-  The src folder comprises of:
+The /src folder comprises of:
   1. DotNetDsa: The Console application which comprises the various data structures and algorithms along with test cases that can run against the various dsa related exercises.
   2. DotNetDsa.Benchmark: A project dedicated for evaluating the performance and memory benchmarks of various data structures & algorithms.
-  The test folder:
-  3. DotNetDsa.Tests: Holds some unit tests that cover some of the data structures and algorithms under the DotNetDsa project.
+The /test folder:
+  3. DotNetDsa.Tests: Holds unit tests that cover some of the data structures and algorithms under the DotNetDsa project.
 
 ### DotNetDsa.Algorithms
   * [Dynamic Programming](src/DotNetDsa/Algorithms/DynamicProgramming.cs)
@@ -15,22 +15,19 @@ The C# .NET solution consists of 3 projects:
   * [Numeric](src/DotNetDsa/Algorithms/Numeric.cs)
   * [Sort](src/DotNetDsa/Algorithms/Sort.cs)
 
-
 ### DotNetDsa.DataStructures
-
-#### Hash Tables:
   * [Hash Table](src/DotNetDsa/DataStructures/HashTable.cs)
   * [Heap](src/DotNetDsa/DataStructures/Heap.cs)
 
 ## Prerequisites
   1. .NET Core >= 2.2
 
-### Installing
+## Installing
 ```
 git clone https://github.com/john-echelon/dotnet-dsa.git
 ```
 Navigate to the DotNetDsa console application. The instruction assumes that you are in the root of the repository.
-### Building
+## Building
 This step is unnecessary as dotnet run will implicitly dotnet restore and build the application. However for brevity sake, to build the application run the dotnet run cmd:
 ```
 cd src/DotNetDsa
@@ -48,7 +45,7 @@ dotnet run -c release -- --help
 ```
 Running the sort command
 ```
-dotnet run -c release sort -all
+dotnet run -c release sort --all
 ```
 ### Running the project in debug mode
 Running the help command (note the extra -- qualifier)
@@ -57,7 +54,7 @@ dotnet run -- --help
 ```
 Running the sort command
 ```
-dotnet run sort -all
+dotnet run sort --all
 ```
 ### Generating the exe
 Netcore apps do not normally generate an exe but rather dlls instead. They are intended to be run by the .NET Core shared run-time. 
@@ -69,8 +66,8 @@ For release builds:
 ```
 dotnet publish -c Release  -r win10-x64
 ```
-
 The remainder of the examples will be run in debug mode unless otherwise indicated.
+### The help command
 Running the help command (note the extra -- qualifier)
 ```
 dotnet run -- --help
