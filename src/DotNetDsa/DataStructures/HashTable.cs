@@ -6,7 +6,6 @@ using DotNetDsa.Utils;
 using DotNetDsa.Algorithms;
 namespace DotNetDsa.DataStructures {
 
-  // TODO: show out distribution. See also poisson distribution
   public class HashTable<TKey,TValue> where TKey: IComparable<TKey>{
     private int bucketSize;
     private float loadFactor;
